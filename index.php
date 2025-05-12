@@ -139,7 +139,16 @@ if ($user['User_Status'] == "block") {
     sendmessage($from_id, $textblock, null, 'html');
     return;
 }
+if (preg_match('/^\/start\s+(\d+)$/', $text, $matches)) {
+    sendmessage($from_id, $textbotlang['users']['affiliates']['offaffiliates'], $keyboard, 'HTML');
+    exit;
+}
 if (strpos($text, "/start ") !== false) {
+    // بخش زیرمجموعه‌گیری غیرفعال شده است
+    sendmessage($from_id, $textbotlang['users']['affiliates']['offaffiliates'], $keyboard, 'HTML');
+    sendmessage($from_id, $datatextbot['text_start'], $keyboard, 'html');
+    return;
+    /*
     if ($user['affiliates'] != 0) {
         sendmessage($from_id, sprintf($textbotlang['users']['affiliates']['affiliateseduser'], $user['affiliates']), null, 'html');
         return;
@@ -174,6 +183,7 @@ if (strpos($text, "/start ") !== false) {
         update("user", "affiliates", $affiliatesid, "id", $from_id);
         update("user", "affiliatescount", $addcountaffiliates, "id", $affiliatesid);
     }
+    */
 }
 $timebot = time();
 $TimeLastMessage = $timebot - intval($user['last_message_time']);
@@ -2073,32 +2083,8 @@ if ($datain == "back_to_menu") {
 }
 
 if ($text == $textbotlang['users']['affiliates']['btn']) {
-    $affiliatesvalue = select("affiliates", "*", null, null, "select")['affiliatesstatus'];
-    if ($affiliatesvalue == "offaffiliates") {
-        sendmessage($from_id, $textbotlang['users']['affiliates']['offaffiliates'], $keyboard, 'HTML');
-        return;
-    }
-    $affiliates = select("affiliates", "*", null, null, "select");
-    $textaffiliates = "{$affiliates['description']}\n\n🔗 https://t.me/$usernamebot?start=$from_id";
-    telegram('sendphoto', [
-        'chat_id' => $from_id,
-        'photo' => $affiliates['id_media'],
-        'caption' => $textaffiliates,
-        'parse_mode' => "HTML",
-    ]);
-    $affiliatescommission = select("affiliates", "*", null, null, "select");
-    if ($affiliatescommission['status_commission'] == "oncommission") {
-        $affiliatespercentage = $affiliatescommission['affiliatespercentage'] . $textbotlang['users']['Percentage'];
-    } else {
-        $affiliatespercentage = $textbotlang['users']['stateus']['disabled'];
-    }
-    if ($affiliatescommission['Discount'] == "onDiscountaffiliates") {
-        $price_Discount = $affiliatescommission['price_Discount'] . $textbotlang['users']['IRT'];
-    } else {
-        $price_Discount = $textbotlang['users']['stateus']['disabled'];
-    }
-    $textaffiliates = sprintf($textbotlang['users']['affiliates']['infotext'], $price_Discount, $affiliatespercentage);
-    sendmessage($from_id, $textaffiliates, $keyboard, 'HTML');
+    sendmessage($from_id, $textbotlang['users']['affiliates']['offaffiliates'], $keyboard, 'HTML');
+    exit;
 }
 require_once 'admin.php';
 $connect->close();
