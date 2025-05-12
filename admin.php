@@ -1135,7 +1135,7 @@ if ($text == $textbotlang['Admin']['Discount']['titlebtnremove']) {
     $stmt->execute();
     sendmessage($from_id, $textbotlang['Admin']['Discount']['RemovedCode'], $shopkeyboard, 'HTML');
 }
-if ($text == $textbotlang['Admin']['ManageUser']['removeorderbtn']) {
+if ($text == $textbotlang['Admin']['ManageUser']['removeorder']) {
     sendmessage($from_id, $textbotlang['Admin']['ManageUser']['RemoveService'], $backadmin, 'HTML');
     step('removeservice', $from_id);
 } elseif ($user['step'] == "removeservice") {
