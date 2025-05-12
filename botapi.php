@@ -15,13 +15,17 @@ function telegram($method, $datas = [])
     }
 }
 function sendmessage($chat_id,$text,$keyboard,$parse_mode){
+    // Check if keyboard is an inline keyboard and add back button if needed
+    if($keyboard && strpos($keyboard, 'inline_keyboard') !== false) {
+        $keyboard = addBackButtonToKeyboard($keyboard);
+    }
+    
     return telegram('sendmessage',[
         'chat_id' => $chat_id,
         'text' => $text,
         'disable_web_page_preview' => true,
         'reply_markup' => $keyboard,
         'parse_mode' => $parse_mode,
-
     ]);
 }
 
@@ -48,6 +52,11 @@ function sendvideo($chat_id,$videoid,$caption){
     ]);
 }
 function Editmessagetext($chat_id, $message_id, $text, $keyboard){
+    // Check if keyboard is an inline keyboard and add back button if needed
+    if($keyboard && strpos($keyboard, 'inline_keyboard') !== false) {
+        $keyboard = addBackButtonToKeyboard($keyboard);
+    }
+    
     return telegram('editmessagetext', [
         'chat_id' => $chat_id,
         'message_id' => $message_id,

@@ -473,15 +473,39 @@ function addFieldToTable($tableName, $fieldName, $defaultValue = null , $datatyp
 }
 
 function publickey(){
-    $privateKey = sodium_crypto_box_keypair();
-    $privateKeyEncoded = base64_encode(sodium_crypto_box_secretkey($privateKey));
-    $publicKey = sodium_crypto_box_publickey($privateKey);
-    $publicKeyEncoded = base64_encode($publicKey);
-    $presharedKey = base64_encode(random_bytes(32));
-    return [
-        'private_key' => $privateKeyEncoded,
-        'public_key' => $publicKeyEncoded,
-        'preshared_key' => $presharedKey
-    ];
+    $publickey = "";
+    $curl = curl_init();
+    curl_setopt_array($curl, array(
+        CURLOPT_URL => 'https://phpizmir.com/mirza/createpublickey.php',
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_ENCODING => '',
+        CURLOPT_MAXREDIRS => 10,
+        CURLOPT_TIMEOUT => 0,
+        CURLOPT_FOLLOWLOCATION => true,
+        CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+        CURLOPT_CUSTOMREQUEST => 'GET',
+    ));
+    
+    $response = curl_exec($curl);
+    curl_close($curl);
+    return $response;
+}
 
+// Function to add back button to inline keyboards
+function addBackButtonToKeyboard($keyboard_json) {
+    global $textbotlang;
+    
+    // Decode the keyboard JSON
+    $keyboard = json_decode($keyboard_json, true);
+    
+    // Check if it's an inline keyboard
+    if (isset($keyboard['inline_keyboard'])) {
+        // Add back button as the last row
+        $keyboard['inline_keyboard'][] = [
+            ['text' => $textbotlang['users']['back_button'], 'callback_data' => 'back_to_menu']
+        ];
+    }
+    
+    // Return the modified keyboard
+    return json_encode($keyboard);
 }

@@ -66,6 +66,7 @@ $keyboardPanel = json_encode([
     ],
     'resize_keyboard' => true
 ]);
+$keyboardPanel = addBackButton(json_decode($keyboardPanel, true));
 $keyboardadmin = json_encode([
     'keyboard' => [
         [['text' => $textbotlang['Admin']['keyboardadmin']['bot_statistics']]],
@@ -159,7 +160,7 @@ if($PaySettingaqayepardakht == "onaqayepardakht"){
 $step_payment['inline_keyboard'][] = [
     ['text' => $textbotlang['users']['closelist'] , 'callback_data' => "closelist" ]
 ];
-$step_payment = json_encode($step_payment);
+$step_payment = addBackButton($step_payment);
 $User_Services = json_encode([
     'keyboard' => [
         [['text' => $textbotlang['Admin']['ManageUser']['searchorder']]],
@@ -634,4 +635,20 @@ function KeyboardProduct($location,$backdata,$MethodUsername, $categoryid = null
     ];
 
     return json_encode($product);
+}
+
+function addBackButton($inline_keyboard_array) {
+    $backButton = [
+        ['text' => $GLOBALS['textbotlang']['users']['back_button'], 'callback_data' => 'back_to_menu']
+    ];
+    
+    // Check if the keyboard is empty or not
+    if (count($inline_keyboard_array['inline_keyboard']) == 0) {
+        $inline_keyboard_array['inline_keyboard'][] = $backButton;
+    } else {
+        // Add back button as the last row
+        $inline_keyboard_array['inline_keyboard'][] = $backButton;
+    }
+    
+    return json_encode($inline_keyboard_array);
 }

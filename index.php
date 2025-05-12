@@ -2065,6 +2065,13 @@ if ($datain == "closelist") {
     deletemessage($from_id, $message_id);
     sendmessage($from_id, $textbotlang['users']['back'], $keyboard, 'HTML');
 }
+
+if ($datain == "back_to_menu") {
+    deletemessage($from_id, $message_id);
+    sendmessage($from_id, $textbotlang['users']['back'], $keyboard, 'HTML');
+    step('home', $from_id);
+}
+
 if ($text == $textbotlang['users']['affiliates']['btn']) {
     $affiliatesvalue = select("affiliates", "*", null, null, "select")['affiliatesstatus'];
     if ($affiliatesvalue == "offaffiliates") {

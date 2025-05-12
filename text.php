@@ -62,6 +62,7 @@ $textbotlang['users']['channeldosntjoin'] = "
 از طریق دکمه زیر وارد کانال شده و عضو شوید
 پس از عضویت دکمه بررسی عضویت را کلیک کنید";
 $textbotlang['users']['back'] = "به صفحه اصلی بازگشتید!";
+$textbotlang['users']['back_button'] = "🔙 بازگشت";
 $textbotlang['users']['backorder'] = "🏠 بازگشت به اطلاعات سرویس";
 $textbotlang['users']['spamtext'] = "اسپم در ربات";
 $textbotlang['users']['online'] = "آنلاین";
