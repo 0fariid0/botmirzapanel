@@ -301,7 +301,7 @@ function install_bot() {
     fi
 
     # Default to latest release
-    ZIP_URL=$(curl -s https://api.github.com/repos/mahdiMGF2/botmirzapanel/releases/latest | grep "zipball_url" | cut -d '"' -f 4)
+    ZIP_URL=$(curl -s https://api.github.com/repos/0fariid0/botmirzapanel/releases/latest | grep "zipball_url" | cut -d '"' -f 4)
 
 # Check for version flag
 if [[ "$1" == "-v" && "$2" == "beta" ]] || [[ "$1" == "-beta" ]] || [[ "$1" == "-" && "$2" == "beta" ]]; then
@@ -878,7 +878,7 @@ function install_bot_with_marzban() {
     }
 
     # Download bot files
-    ZIP_URL=$(curl -s https://api.github.com/repos/mahdiMGF2/botmirzapanel/releases/latest | grep "zipball_url" | cut -d '"' -f 4)
+    ZIP_URL=$(curl -s https://api.github.com/repos/0fariid0/botmirzapanel/releases/latest | grep "zipball_url" | cut -d '"' -f 4)
     if [[ "$1" == "-v" && "$2" == "beta" ]] || [[ "$1" == "-beta" ]] || [[ "$1" == "-" && "$2" == "beta" ]]; then
         ZIP_URL="https://github.com/0fariid0/botmirzapanel/archive/refs/heads/main.zip"
     elif [[ "$1" == "-v" && -n "$2" ]]; then
