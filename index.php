@@ -140,12 +140,8 @@ if ($user['User_Status'] == "block") {
     return;
 }
 if (strpos($text, "/start ") !== false) {
-    $affiliatesid = str_replace("/start ", "", $text);
-    // بررسی اگر کد دعوت کاربر دیگری است، آن را نادیده بگیر و فقط منوی اصلی را نمایش بده
-    if (ctype_digit($affiliatesid)) {
-        sendmessage($from_id, $datatextbot['text_start'], $keyboard, 'html');
-        return;
-    }
+    sendmessage($from_id, $datatextbot['text_start'], $keyboard, 'html');
+    return;
 }
 $timebot = time();
 $TimeLastMessage = $timebot - intval($user['last_message_time']);
@@ -1529,17 +1525,8 @@ if ($text == $datatextbot['text_sell'] || $datain == "buy" || $text == "/buy") {
         }
     }
     $affiliatescommission = select("affiliates", "*", null, null, "select");
-    if ($affiliatescommission['status_commission'] == "oncommission" && ($user['affiliates'] !== null || $user['affiliates'] != "0")) {
-        $affiliatescommission = select("affiliates", "*", null, null, "select");
-        $result = ($priceproduct * $affiliatescommission['affiliatespercentage']) / 100;
-        $user_Balance = select("user", "*", "id", $user['affiliates'], "select");
-        if ($user_Balance) {
-            $Balance_prim = $user_Balance['Balance'] + $result;
-            update("user", "Balance", $Balance_prim, "id", $user['affiliates']);
-            $result = number_format($result);
-            $textadd = sprintf($textbotlang['users']['affiliates']['porsantuser'], $result);
-            sendmessage($user['affiliates'], $textadd, null, 'HTML');
-        }
+    if (isset($affiliatescommission) && $affiliatescommission['status_commission'] == "oncommission" && ($user['affiliates'] !== null || $user['affiliates'] != "0")) {
+        $result = 0;
     }
     $link_config = "";
     $text_config = "";
@@ -2043,9 +2030,8 @@ if ($datain == "back_to_menu") {
     step('home', $from_id);
 }
 
-if ($text == $textbotlang['users']['affiliates']['btn']) {
-    // غیرفعال کردن قابلیت زیر مجموعه گیری
-    sendmessage($from_id, "این قابلیت در حال حاضر غیرفعال است.", $keyboard, 'HTML');
+if ($text == $textbotlang['users']['affiliates']['btn'] || strpos($text, "/start ") !== false) {
+    sendmessage($from_id, $datatextbot['text_start'], $keyboard, 'html');
     return;
 }
 require_once 'admin.php';

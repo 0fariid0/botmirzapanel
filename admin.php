@@ -1591,214 +1591,32 @@ if ($text == $textbotlang['Admin']['Discountsell']['remove']) {
     sendmessage($from_id, $textbotlang['Admin']['Discount']['RemovedCode'], $shopkeyboard, 'HTML');
     step('home', $from_id);
 }
-if ($text == $textbotlang['Admin']['keyboardadmin']['affiliate_settings']) {
-    sendmessage($from_id, "قابلیت تنظیمات زیر مجموعه گیری در حال حاضر غیرفعال است.", $keyboardadmin, 'HTML');
+if ($text == $textbotlang['Admin']['keyboardadmin']['affiliate_settings'] || 
+    $text == $textbotlang['Admin']['affiliate']['status'] || 
+    $text == $textbotlang['Admin']['affiliate']['Percentageset'] ||
+    $text == $textbotlang['Admin']['affiliate']['setbaner'] ||
+    $text == $textbotlang['Admin']['affiliate']['porsantafterbuy'] ||
+    $text == $textbotlang['Admin']['affiliate']['gift'] ||
+    $text == $textbotlang['Admin']['affiliate']['giftstart']) {
+    sendmessage($from_id, "این قابلیت غیرفعال شده است.", $keyboardadmin, 'HTML');
     step('home', $from_id);
-} elseif ($text == $textbotlang['Admin']['affiliate']['status']) {
-    $affiliatesvalue = select("affiliates", "*", null, null, "select")['affiliatesstatus'];
-    $keyboardaffiliates = json_encode([
-        'inline_keyboard' => [
-            [
-                ['text' => $affiliatesvalue, 'callback_data' => $affiliatesvalue],
-            ],
-        ]
-    ]);
-    sendmessage($from_id, $textbotlang['Admin']['Status']['affiliates'], $keyboardaffiliates, 'HTML');
-} elseif ($datain == "onaffiliates") {
-    update("affiliates", "affiliatesstatus", "offaffiliates");
-    $affiliatesvalue = select("affiliates", "*", null, null, "select")['affiliatesstatus'];
-    $keyboardaffiliates = json_encode([
-        'inline_keyboard' => [
-            [
-                ['text' => $affiliatesvalue, 'callback_data' => $affiliatesvalue],
-            ],
-        ]
-    ]);
-    Editmessagetext($from_id, $message_id, $textbotlang['Admin']['Status']['affiliatesStatusOff'], $keyboardaffiliates);
-} elseif ($datain == "offaffiliates") {
-    update("affiliates", "affiliatesstatus", "onaffiliates");
-    $affiliatesvalue = select("affiliates", "*", null, null, "select")['affiliatesstatus'];
-    $keyboardaffiliates = json_encode([
-        'inline_keyboard' => [
-            [
-                ['text' => $affiliatesvalue, 'callback_data' => $affiliatesvalue],
-            ],
-        ]
-    ]);
-    Editmessagetext($from_id, $message_id, $textbotlang['Admin']['Status']['affiliatesStatuson'], $keyboardaffiliates);
+    return;
 }
-if ($text == $textbotlang['Admin']['affiliate']['Percentageset']) {
-    sendmessage($from_id, $textbotlang['users']['affiliates']['setpercentage'], $backadmin, 'HTML');
-    step('setpercentage', $from_id);
-} elseif ($user['step'] == "setpercentage") {
-    if (!ctype_digit($text)) {
-        sendmessage($from_id, $textbotlang['Admin']['invalidvalue'], null, 'HTML');
-        return;
-    }
-    sendmessage($from_id, $textbotlang['users']['affiliates']['changedpercentage'], $affiliates, 'HTML');
-    update("affiliates", "affiliatespercentage", $text);
-    step('home', $from_id);
-} elseif ($text == $textbotlang['Admin']['affiliate']['setbaner']) {
-    sendmessage($from_id, $textbotlang['users']['affiliates']['banner'], $backadmin, 'HTML');
-    step('setbanner', $from_id);
-} elseif ($user['step'] == "setbanner") {
-    if (!$photo) {
-        sendmessage($from_id, $textbotlang['users']['affiliates']['invalidbanner'], $backadmin, 'HTML');
-        return;
-    }
-    update("affiliates", "description", $caption);
-    update("affiliates", "id_media", $photoid);
-    sendmessage($from_id, $textbotlang['users']['affiliates']['insertbanner'], $affiliates, 'HTML');
-    step('home', $from_id);
-} elseif ($text == $textbotlang['Admin']['affiliate']['porsantafterbuy']) {
-    $marzbancommission = select("affiliates", "*", null, null, "select");
-    $keyboardcommission = json_encode([
-        'inline_keyboard' => [
-            [
-                ['text' => $marzbancommission['status_commission'], 'callback_data' => $marzbancommission['status_commission']],
-            ],
-        ]
-    ]);
-    sendmessage($from_id, $textbotlang['Admin']['Status']['commission'], $keyboardcommission, 'HTML');
-} elseif ($datain == "oncommission") {
-    update("affiliates", "status_commission", "offcommission");
-    $marzbancommission = select("affiliates", "*", null, null, "select");
-    $keyboardcommission = json_encode([
-        'inline_keyboard' => [
-            [
-                ['text' => $marzbancommission['status_commission'], 'callback_data' => $marzbancommission['status_commission']],
-            ],
-        ]
-    ]);
-    Editmessagetext($from_id, $message_id, $textbotlang['Admin']['Status']['commissionStatusOff'], $keyboardcommission);
-} elseif ($datain == "offcommission") {
-    update("affiliates", "status_commission", "oncommission");
-    $marzbancommission = select("affiliates", "*", null, null, "select");
-    $keyboardcommission = json_encode([
-        'inline_keyboard' => [
-            [
-                ['text' => $marzbancommission['status_commission'], 'callback_data' => $marzbancommission['status_commission']],
-            ],
-        ]
-    ]);
-    Editmessagetext($from_id, $message_id, $textbotlang['Admin']['Status']['commissionStatuson'], $keyboardcommission);
-} elseif ($text == $textbotlang['Admin']['affiliate']['gift']) {
-    $marzbanDiscountaffiliates = select("affiliates", "*", null, null, "select");
-    $keyboardDiscountaffiliates = json_encode([
-        'inline_keyboard' => [
-            [
-                ['text' => $marzbanDiscountaffiliates['Discount'], 'callback_data' => $marzbanDiscountaffiliates['Discount']],
-            ],
-        ]
-    ]);
-    sendmessage($from_id, $textbotlang['Admin']['Status']['Discountaffiliates'], $keyboardDiscountaffiliates, 'HTML');
-} elseif ($datain == "onDiscountaffiliates") {
-    update("affiliates", "Discount", "offDiscountaffiliates");
-    $marzbanDiscountaffiliates = select("affiliates", "*", null, null, "select");
-    $keyboardDiscountaffiliates = json_encode([
-        'inline_keyboard' => [
-            [
-                ['text' => $marzbanDiscountaffiliates['Discount'], 'callback_data' => $marzbanDiscountaffiliates['Discount']],
-            ],
-        ]
-    ]);
-    Editmessagetext($from_id, $message_id, $textbotlang['Admin']['Status']['DiscountaffiliatesStatusOff'], $keyboardDiscountaffiliates);
-} elseif ($datain == "offDiscountaffiliates") {
-    update("affiliates", "Discount", "onDiscountaffiliates");
-    $marzbanDiscountaffiliates = select("affiliates", "*", null, null, "select");
-    $keyboardDiscountaffiliates = json_encode([
-        'inline_keyboard' => [
-            [
-                ['text' => $marzbanDiscountaffiliates['Discount'], 'callback_data' => $marzbanDiscountaffiliates['Discount']],
-            ],
-        ]
-    ]);
-    Editmessagetext($from_id, $message_id, $textbotlang['Admin']['Status']['DiscountaffiliatesStatuson'], $keyboardDiscountaffiliates);
+
+// حذف کد مربوط به پورسانت
+if ($datain == "oncommission" || $datain == "offcommission" || 
+    $datain == "onDiscountaffiliates" || $datain == "offDiscountaffiliates" ||
+    $datain == "onaffiliates" || $datain == "offaffiliates") {
+    sendmessage($from_id, "این قابلیت غیرفعال شده است.", $keyboardadmin, 'HTML');
+    return;
 }
-if ($text == $textbotlang['Admin']['affiliate']['giftstart']) {
-    sendmessage($from_id, $textbotlang['users']['affiliates']['priceDiscount'], $backadmin, 'HTML');
-    step('getdiscont', $from_id);
-} elseif ($user['step'] == "getdiscont") {
-    if (!ctype_digit($text)) {
-        sendmessage($from_id, $textbotlang['Admin']['invalidvalue'], null, 'HTML');
-        return;
-    }
-    sendmessage($from_id, $textbotlang['users']['affiliates']['changedpriceDiscount'], $affiliates, 'HTML');
-    update("affiliates", "price_Discount", $text);
+
+// حذف کد مربوط به تنظیمات زیرمجموعه گیری
+if ($user['step'] == "setpercentage" || $user['step'] == "setbanner") {
     step('home', $from_id);
-} elseif (preg_match('/rejectremoceserviceadmin-(\w+)/', $datain, $dataget)) {
-    $usernamepanel = $dataget[1];
-    $requestcheck = select("cancel_service", "*", "username", $usernamepanel, "select");
-    if ($requestcheck['status'] == "accept" || $requestcheck['status'] == "reject") {
-        telegram('answerCallbackQuery', array(
-                'callback_query_id' => $callback_query_id,
-                'text' => $textbotlang['users']['stateus']['residaccepted'],
-                'show_alert' => true,
-                'cache_time' => 5,
-            )
-        );
-        return;
-    }
-    step("descriptionsrequsts", $from_id);
-    update("user", "Processing_value", $usernamepanel, "id", $from_id);
-    sendmessage($from_id,$textbotlang['users']['stateus']['acceptrequest'], $backuser, 'HTML');
-
-} elseif ($user['step'] == "descriptionsrequsts") {
-    sendmessage($from_id, $textbotlang['users']['stateus']['acceptrequestnote'], $keyboardadmin, 'HTML');
-    $nameloc = select("invoice", "*", "username", $user['Processing_value'], "select");
-    update("cancel_service", "status", "reject", "username", $user['Processing_value']);
-    update("cancel_service", "description", $text, "username", $user['Processing_value']);
-    step("home", $from_id);
-    sendmessage($nameloc['id_user'], sprintf($textbotlang['users']['stateus']['rejectsendtouser'],$user['Processing_value'],$text), null, 'HTML');
-
-} elseif (preg_match('/remoceserviceadmin-(\w+)/', $datain, $dataget)) {
-    $username = $dataget[1];
-    $requestcheck = select("cancel_service", "*", "username", $username, "select");
-    if ($requestcheck['status'] == "accept" || $requestcheck['status'] == "reject") {
-        telegram('answerCallbackQuery', array(
-                'callback_query_id' => $callback_query_id,
-                'text' =>$textbotlang['users']['stateus']['residaccepted'],
-                'show_alert' => true,
-                'cache_time' => 5,
-            )
-        );
-        return;
-    }
-    step("getpricerequests", $from_id);
-    update("user", "Processing_value", $username, "id", $from_id);
-    sendmessage($from_id, $textbotlang['users']['stateus']['getpriceforadd'], $backuser, 'HTML');
-
-} elseif ($user['step'] == "getpricerequests") {
-    if (!ctype_digit($text)) {
-        sendmessage($from_id, $textbotlang['Admin']['invalidvalue'], null, 'HTML');
-    }
-    $nameloc = select("invoice", "*", "username", $user['Processing_value'], "select");
-    if ($nameloc['price_product'] < $text) {
-        sendmessage($from_id, $textbotlang['Admin']['maxvalue'], $backuser, 'HTML');
-        return;
-    }
-    sendmessage($from_id,$textbotlang['users']['stateus']['acceptrequestnote'], $keyboardadmin, 'HTML');
-    step("home", $from_id);
-    $marzban_list_get = mysqli_fetch_assoc(mysqli_query($connect, "SELECT * FROM marzban_panel WHERE name_panel = '{$nameloc['Service_location']}'"));
-    $DataUserOut = $ManagePanel->DataUser($marzban_list_get['name_panel'], $user['Processing_value']);
-    if (isset ($DataUserOut['status'])) {
-        $ManagePanel->RemoveUser($marzban_list_get['name_panel'], $user['Processing_value']);
-    }
-    update("cancel_service", "status", "accept", "username", $user['Processing_value']);
-    update("invoice", "status", "removedbyadmin", "username", $user['Processing_value']);
-    step("home", $from_id);
-    sendmessage($nameloc['id_user'],sprintf($textbotlang['users']['stateus']['acceptrequest'],$user['Processing_value']), null, 'HTML');
-    $pricecancel = number_format(intval($text));
-    if (intval($text) != 0) {
-        $Balance_id_cancel = mysqli_fetch_assoc(mysqli_query($connect, "SELECT * FROM user WHERE id = '{$nameloc['id_user']}' LIMIT 1"));
-        $Balance_id_cancel_fee = intval($Balance_id_cancel['Balance']) + intval($text);
-        update("user", "Balance", $Balance_id_cancel_fee, "id", $nameloc['id_user']);
-        sendmessage($nameloc['id_user'],sprintf($textbotlang['users']['stateus']['addedbalanceremove'],$pricecancel), null, 'HTML');
-    }
-    if (isset($setting['Channel_Report']) &&strlen($setting['Channel_Report']) > 0) {
-        sendmessage($setting['Channel_Report'], sprintf($textbotlang['Admin']['Report']['reportremove'],$from_id,$pricecancel,$username,$nameloc['id_user']), null, 'HTML');
-    }
+    return;
 }
+
 if ($text == $textbotlang['Admin']['managepanel']['keyboardpanel']['on_hold_status']) {
     $panel = select("marzban_panel", "*", "name_panel", $user['Processing_value'], "select");
     if ($panel['onholdstatus'] == null) {

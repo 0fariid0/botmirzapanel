@@ -328,7 +328,7 @@ function DirectPayment($order_id){
         }else{
             $pricediscount = null;
         }
-        PaymentCommission($get_invoice['id_user'], $pricediscount);
+        calculateCommission($get_invoice['id_user'], $pricediscount);
         $Balance_prims = $Balance_id['Balance'] - $get_invoice['price_product'];
         if($Balance_prims <= 0) $Balance_prims = 0;
         update("user","Balance",$Balance_prims, "id",$Balance_id['id']);
@@ -494,27 +494,7 @@ function addBackButtonToKeyboard($keyboard_json) {
     // Return the modified keyboard
     return json_encode($keyboard);
 }
-function PaymentCommission($userid,$pricediscount=null)
+function calculateCommission($userid, $pricediscount = null)
 {
-    global $connect,$textbotlang;
-    /*
-    // غیرفعال کردن محاسبه پورسانت
-    $Balance_id = select("user", "*", "id", $userid,"select");
-    $affiliatescommission = select("affiliates", "*", null, null,"select");
-    if ($affiliatescommission['status_commission'] == "oncommission" &&($Balance_id['affiliates'] !== null || $Balance_id['affiliates'] != 0)) {
-        $get_invoice = select("invoice", "*", "id_user", $userid,"select");
-        $result = ($get_invoice['price_product'] * $affiliatescommission['affiliatespercentage']) / 100;
-        if ($pricediscount != null) {
-            $result = ($pricediscount * $affiliatescommission['affiliatespercentage']) / 100;
-        }
-        $user_Balance = select("user", "*", "id", $Balance_id['affiliates'],"select");
-        if ($user_Balance) {
-            $Balance_prim = $user_Balance['Balance'] + $result;
-            update("user","Balance",$Balance_prim, "id",$Balance_id['affiliates']);
-            $result = number_format($result);
-            $textadd =sprintf($textbotlang['users']['affiliates']['porsantuser'],$result);
-            sendmessage($Balance_id['affiliates'], $textadd, null, 'HTML');
-        }
-    }
-    */
+    return 0;
 }
