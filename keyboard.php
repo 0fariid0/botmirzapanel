@@ -47,16 +47,16 @@ $keyboard = [
         [['text' => $datatextbot['text_sell']],['text' => $datatextbot['text_usertest']]],
         [['text' => $datatextbot['text_Purchased_services']],['text' => $datatextbot['text_Tariff_list']]],
         [['text' => $datatextbot['text_account']],['text' => $datatextbot['text_Add_Balance']]],
-        [['text' => $datatextbot['text_support']], ['text' => $datatextbot['text_help']]],
+        [['text' => $datatextbot['text_support']], ['text' => $datatextbot['text_help']]]
     ],
     'resize_keyboard' => true
 ];
 if(in_array($from_id,$admin_ids)){
     $keyboard['keyboard'][] = [
-        ['text' => $textbotlang['Admin']['commendadmin']],
+        ['text' => $textbotlang['Admin']['commendadmin']]
     ];
 }
-$keyboard  = json_encode($keyboard);
+$keyboard = json_encode($keyboard);
 
 
 $keyboardPanel = json_encode([
