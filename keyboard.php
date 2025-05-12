@@ -2,6 +2,33 @@
 require_once 'config.php';
 require_once 'functions.php';
 require_once 'text.php';
+
+// ایجاد جدول admins اگر وجود نداشته باشد
+$sql = "CREATE TABLE IF NOT EXISTS admins (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    username VARCHAR(50) NOT NULL UNIQUE,
+    password VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+)";
+try {
+    $pdo->exec($sql);
+    
+    // بررسی وجود ادمین اولیه
+    $stmt = $pdo->query("SELECT COUNT(*) FROM admins");
+    $admin_count = $stmt->fetchColumn();
+    
+    // اگر هیچ ادمینی وجود نداشت، ادمین اولیه را اضافه کن
+    if ($admin_count == 0) {
+        $default_username = 'admin';
+        $default_password = password_hash('admin123456', PASSWORD_DEFAULT);
+        
+        $stmt = $pdo->prepare("INSERT INTO admins (username, password) VALUES (?, ?)");
+        $stmt->execute([$default_username, $default_password]);
+    }
+} catch (PDOException $e) {
+    error_log("Admin Table Creation Error: " . $e->getMessage());
+}
+
 $setting = select("setting", "*");
 $admin_ids = select("admin", "id_admin",null,null,"FETCH_COLUMN");
 //-----------------------------[  text panel  ]-------------------------------
@@ -47,6 +74,7 @@ $keyboard = [
         [['text' => $datatextbot['text_sell']],['text' => $datatextbot['text_usertest']]],
         [['text' => $datatextbot['text_Purchased_services']],['text' => $datatextbot['text_Tariff_list']]],
         [['text' => $datatextbot['text_account']],['text' => $datatextbot['text_Add_Balance']]],
+        [['text' => $textbotlang['users']['affiliates']['btn']]],
         [['text' => $datatextbot['text_support']], ['text' => $datatextbot['text_help']]],
     ],
     'resize_keyboard' => true
@@ -56,7 +84,7 @@ if(in_array($from_id,$admin_ids)){
         ['text' => $textbotlang['Admin']['commendadmin']],
     ];
 }
-$keyboard = json_encode($keyboard);
+$keyboard  = json_encode($keyboard);
 
 
 $keyboardPanel = json_encode([
@@ -74,6 +102,7 @@ $keyboardadmin = json_encode([
         [['text' => $textbotlang['Admin']['keyboardadmin']['shop_section']], ['text' => $textbotlang['Admin']['keyboardadmin']['finance']]],
         [['text' => $textbotlang['Admin']['keyboardadmin']['admin_section']], ['text' => $textbotlang['Admin']['keyboardadmin']['bot_text_settings']]],
         [['text' => $textbotlang['Admin']['keyboardadmin']['user_services']], ['text' => $textbotlang['Admin']['keyboardadmin']['user_search']], ['text' => $textbotlang['Admin']['keyboardadmin']['send_message']]],
+        [['text' => $textbotlang['Admin']['keyboardadmin']['affiliate_settings']]],
         [['text' => $textbotlang['Admin']['keyboardadmin']['tutorial_section']], ['text' => $textbotlang['Admin']['keyboardadmin']['settings']]],
         [['text' => $textbotlang['users']['backhome']]]
     ],
@@ -532,6 +561,17 @@ $supportoption = json_encode([
             ['text' => $textbotlang['users']['sendmessagesupport'], 'callback_data' => "support"],
         ],
     ]
+]);
+$affiliates = json_encode([
+    'keyboard' => [
+        [['text' => $textbotlang['Admin']['affiliate']['status']]],
+        [['text' => $textbotlang['Admin']['affiliate']['Percentageset']]],
+        [['text' => $textbotlang['Admin']['affiliate']['setbaner']]],
+        [['text' => $textbotlang['Admin']['affiliate']['porsantafterbuy']], ['text' => $textbotlang['Admin']['affiliate']['gift']]],
+        [['text' => $textbotlang['Admin']['affiliate']['giftstart']]],
+        [['text' => $textbotlang['Admin']['Back-Adminment']]]
+    ],
+    'resize_keyboard' => true
 ]);
 $typepanel =  json_encode([
     'keyboard' => [

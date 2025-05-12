@@ -140,8 +140,40 @@ if ($user['User_Status'] == "block") {
     return;
 }
 if (strpos($text, "/start ") !== false) {
-    sendmessage($from_id, $datatextbot['text_start'], $keyboard, 'html');
-    return;
+    if ($user['affiliates'] != 0) {
+        sendmessage($from_id, sprintf($textbotlang['users']['affiliates']['affiliateseduser'], $user['affiliates']), null, 'html');
+        return;
+    }
+    $affiliatesvalue = select("affiliates", "*", null, null, "select")['affiliatesstatus'];
+    if ($affiliatesvalue == "offaffiliates") {
+        sendmessage($from_id, $textbotlang['users']['affiliates']['offaffiliates'], $keyboard, 'HTML');
+        return;
+    }
+    $affiliatesid = str_replace("/start ", "", $text);
+    if (ctype_digit($affiliatesid)) {
+        if (!in_array($affiliatesid, $users_ids)) {
+            sendmessage($from_id, $textbotlang['users']['affiliates']['affiliatesyou'], null, 'html');
+            return;
+        }
+        if ($affiliatesid == $from_id) {
+            sendmessage($from_id, $textbotlang['users']['affiliates']['invalidaffiliates'], null, 'html');
+            return;
+        }
+        $marzbanDiscountaffiliates = select("affiliates", "*", null, null, "select");
+        if ($marzbanDiscountaffiliates['Discount'] == "onDiscountaffiliates") {
+            $marzbanDiscountaffiliates = select("affiliates", "*", null, null, "select");
+            $Balance_user = select("user", "*", "id", $affiliatesid, "select");
+            $Balance_add_user = $Balance_user['Balance'] + $marzbanDiscountaffiliates['price_Discount'];
+            update("user", "Balance", $Balance_add_user, "id", $affiliatesid);
+            $addbalancediscount = number_format($marzbanDiscountaffiliates['price_Discount'], 0);
+            sendmessage($affiliatesid, sprintf($textbotlang['users']['affiliates']['giftuser'], $addbalancediscount, $from_id), null, 'html');
+        }
+        sendmessage($from_id, $datatextbot['text_start'], $keyboard, 'html');
+        $useraffiliates = select("user", "*", "id", $affiliatesid, "select");
+        $addcountaffiliates = intval($useraffiliates['affiliatescount']) + 1;
+        update("user", "affiliates", $affiliatesid, "id", $from_id);
+        update("user", "affiliatescount", $addcountaffiliates, "id", $affiliatesid);
+    }
 }
 $timebot = time();
 $TimeLastMessage = $timebot - intval($user['last_message_time']);
@@ -168,6 +200,7 @@ if (floor($TimeLastMessage / 60) >= 1) {
         return;
     }
 } #-----------Channel------------#
+$chanelcheck = channel($channels['link']);
 if ($datain == "confirmchannel") {
     if (count($chanelcheck) != 0 && !in_array($from_id, $admin_ids)) {
         telegram(
@@ -1309,7 +1342,7 @@ if ($text == $datatextbot['text_account']) {
     $first_name = htmlspecialchars($first_name);
     $Balanceuser = number_format($user['Balance'], 0);
     $countorder = select("invoice", "id_user", 'id_user', $from_id, "count");
-    $text_account = sprintf($textbotlang['users']['account'], $first_name, $from_id, $Balanceuser, $countorder, "-", $dateacc, $timeacc);
+    $text_account = sprintf($textbotlang['users']['account'], $first_name, $from_id, $Balanceuser, $countorder, $user['affiliatescount'], $dateacc, $timeacc);
     sendmessage($from_id, $text_account, $keyboardPanel, 'HTML');
 }
 if ($text == $datatextbot['text_sell'] || $datain == "buy" || $text == "/buy") {
@@ -1525,8 +1558,17 @@ if ($text == $datatextbot['text_sell'] || $datain == "buy" || $text == "/buy") {
         }
     }
     $affiliatescommission = select("affiliates", "*", null, null, "select");
-    if (isset($affiliatescommission) && $affiliatescommission['status_commission'] == "oncommission" && ($user['affiliates'] !== null || $user['affiliates'] != "0")) {
-        $result = 0;
+    if ($affiliatescommission['status_commission'] == "oncommission" && ($user['affiliates'] !== null || $user['affiliates'] != "0")) {
+        $affiliatescommission = select("affiliates", "*", null, null, "select");
+        $result = ($priceproduct * $affiliatescommission['affiliatespercentage']) / 100;
+        $user_Balance = select("user", "*", "id", $user['affiliates'], "select");
+        if ($user_Balance) {
+            $Balance_prim = $user_Balance['Balance'] + $result;
+            update("user", "Balance", $Balance_prim, "id", $user['affiliates']);
+            $result = number_format($result);
+            $textadd = sprintf($textbotlang['users']['affiliates']['porsantuser'], $result);
+            sendmessage($user['affiliates'], $textadd, null, 'HTML');
+        }
     }
     $link_config = "";
     $text_config = "";
@@ -2030,9 +2072,33 @@ if ($datain == "back_to_menu") {
     step('home', $from_id);
 }
 
-if ($text == $textbotlang['users']['affiliates']['btn'] || strpos($text, "/start ") !== false) {
-    sendmessage($from_id, $datatextbot['text_start'], $keyboard, 'html');
-    return;
+if ($text == $textbotlang['users']['affiliates']['btn']) {
+    $affiliatesvalue = select("affiliates", "*", null, null, "select")['affiliatesstatus'];
+    if ($affiliatesvalue == "offaffiliates") {
+        sendmessage($from_id, $textbotlang['users']['affiliates']['offaffiliates'], $keyboard, 'HTML');
+        return;
+    }
+    $affiliates = select("affiliates", "*", null, null, "select");
+    $textaffiliates = "{$affiliates['description']}\n\n🔗 https://t.me/$usernamebot?start=$from_id";
+    telegram('sendphoto', [
+        'chat_id' => $from_id,
+        'photo' => $affiliates['id_media'],
+        'caption' => $textaffiliates,
+        'parse_mode' => "HTML",
+    ]);
+    $affiliatescommission = select("affiliates", "*", null, null, "select");
+    if ($affiliatescommission['status_commission'] == "oncommission") {
+        $affiliatespercentage = $affiliatescommission['affiliatespercentage'] . $textbotlang['users']['Percentage'];
+    } else {
+        $affiliatespercentage = $textbotlang['users']['stateus']['disabled'];
+    }
+    if ($affiliatescommission['Discount'] == "onDiscountaffiliates") {
+        $price_Discount = $affiliatescommission['price_Discount'] . $textbotlang['users']['IRT'];
+    } else {
+        $price_Discount = $textbotlang['users']['stateus']['disabled'];
+    }
+    $textaffiliates = sprintf($textbotlang['users']['affiliates']['infotext'], $price_Discount, $affiliatespercentage);
+    sendmessage($from_id, $textaffiliates, $keyboard, 'HTML');
 }
 require_once 'admin.php';
 $connect->close();

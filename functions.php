@@ -328,7 +328,22 @@ function DirectPayment($order_id){
         }else{
             $pricediscount = null;
         }
-        calculateCommission($get_invoice['id_user'], $pricediscount);
+        $affiliatescommission = select("affiliates", "*", null, null,"select");
+        if ($affiliatescommission['status_commission'] == "oncommission" &&($Balance_id['affiliates'] !== null || $Balance_id['affiliates'] != 0)) {
+            if($pricediscount == null){
+                $result = ($get_invoice['price_product'] * $affiliatescommission['affiliatespercentage']) / 100;
+            }else{
+                $result = ($pricediscount * $affiliatescommission['affiliatespercentage']) / 100;
+            }
+            $user_Balance = select("user", "*", "id", $Balance_id['affiliates'],"select");
+            if(isset($user_Balance)){
+                $Balance_prim = $user_Balance['Balance'] + $result;
+                update("user","Balance",$Balance_prim, "id",$Balance_id['affiliates']);
+                $result = number_format($result);
+                $textadd =sprintf($textbotlang['users']['affiliates']['porsantuser'],$result);
+                sendmessage($Balance_id['affiliates'], $textadd, null, 'HTML');
+            }
+        }
         $Balance_prims = $Balance_id['Balance'] - $get_invoice['price_product'];
         if($Balance_prims <= 0) $Balance_prims = 0;
         update("user","Balance",$Balance_prims, "id",$Balance_id['id']);
@@ -493,8 +508,4 @@ function addBackButtonToKeyboard($keyboard_json) {
     
     // Return the modified keyboard
     return json_encode($keyboard);
-}
-function calculateCommission($userid, $pricediscount = null)
-{
-    return 0;
 }
