@@ -1592,7 +1592,8 @@ if ($text == $textbotlang['Admin']['Discountsell']['remove']) {
     step('home', $from_id);
 }
 if ($text == $textbotlang['Admin']['keyboardadmin']['affiliate_settings']) {
-    sendmessage($from_id, $textbotlang['users']['selectoption'], $affiliates, 'HTML');
+    sendmessage($from_id, "قابلیت تنظیمات زیر مجموعه گیری در حال حاضر غیرفعال است.", $keyboardadmin, 'HTML');
+    step('home', $from_id);
 } elseif ($text == $textbotlang['Admin']['affiliate']['status']) {
     $affiliatesvalue = select("affiliates", "*", null, null, "select")['affiliatesstatus'];
     $keyboardaffiliates = json_encode([

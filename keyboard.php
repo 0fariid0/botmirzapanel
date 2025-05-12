@@ -74,7 +74,6 @@ $keyboardadmin = json_encode([
         [['text' => $textbotlang['Admin']['keyboardadmin']['shop_section']], ['text' => $textbotlang['Admin']['keyboardadmin']['finance']]],
         [['text' => $textbotlang['Admin']['keyboardadmin']['admin_section']], ['text' => $textbotlang['Admin']['keyboardadmin']['bot_text_settings']]],
         [['text' => $textbotlang['Admin']['keyboardadmin']['user_services']], ['text' => $textbotlang['Admin']['keyboardadmin']['user_search']], ['text' => $textbotlang['Admin']['keyboardadmin']['send_message']]],
-        [['text' => $textbotlang['Admin']['keyboardadmin']['affiliate_settings']]],
         [['text' => $textbotlang['Admin']['keyboardadmin']['tutorial_section']], ['text' => $textbotlang['Admin']['keyboardadmin']['settings']]],
         [['text' => $textbotlang['users']['backhome']]]
     ],
@@ -533,17 +532,6 @@ $supportoption = json_encode([
             ['text' => $textbotlang['users']['sendmessagesupport'], 'callback_data' => "support"],
         ],
     ]
-]);
-$affiliates = json_encode([
-    'keyboard' => [
-        [['text' => $textbotlang['Admin']['affiliate']['status']]],
-        [['text' => $textbotlang['Admin']['affiliate']['Percentageset']]],
-        [['text' => $textbotlang['Admin']['affiliate']['setbaner']]],
-        [['text' => $textbotlang['Admin']['affiliate']['porsantafterbuy']], ['text' => $textbotlang['Admin']['affiliate']['gift']]],
-        [['text' => $textbotlang['Admin']['affiliate']['giftstart']]],
-        [['text' => $textbotlang['Admin']['Back-Adminment']]]
-    ],
-    'resize_keyboard' => true
 ]);
 $typepanel =  json_encode([
     'keyboard' => [

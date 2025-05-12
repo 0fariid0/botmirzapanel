@@ -1313,7 +1313,7 @@ if ($text == $datatextbot['text_account']) {
     $first_name = htmlspecialchars($first_name);
     $Balanceuser = number_format($user['Balance'], 0);
     $countorder = select("invoice", "id_user", 'id_user', $from_id, "count");
-    $text_account = sprintf($textbotlang['users']['account'], $first_name, $from_id, $Balanceuser, $countorder, $user['affiliatescount'], $dateacc, $timeacc);
+    $text_account = sprintf($textbotlang['users']['account'], $first_name, $from_id, $Balanceuser, $countorder, "-", $dateacc, $timeacc);
     sendmessage($from_id, $text_account, $keyboardPanel, 'HTML');
 }
 if ($text == $datatextbot['text_sell'] || $datain == "buy" || $text == "/buy") {
