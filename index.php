@@ -140,39 +140,11 @@ if ($user['User_Status'] == "block") {
     return;
 }
 if (strpos($text, "/start ") !== false) {
-    if ($user['affiliates'] != 0) {
-        sendmessage($from_id, sprintf($textbotlang['users']['affiliates']['affiliateseduser'], $user['affiliates']), null, 'html');
-        return;
-    }
-    $affiliatesvalue = select("affiliates", "*", null, null, "select")['affiliatesstatus'];
-    if ($affiliatesvalue == "offaffiliates") {
-        sendmessage($from_id, $textbotlang['users']['affiliates']['offaffiliates'], $keyboard, 'HTML');
-        return;
-    }
     $affiliatesid = str_replace("/start ", "", $text);
+    // بررسی اگر کد دعوت کاربر دیگری است، آن را نادیده بگیر و فقط منوی اصلی را نمایش بده
     if (ctype_digit($affiliatesid)) {
-        if (!in_array($affiliatesid, $users_ids)) {
-            sendmessage($from_id, $textbotlang['users']['affiliates']['affiliatesyou'], null, 'html');
-            return;
-        }
-        if ($affiliatesid == $from_id) {
-            sendmessage($from_id, $textbotlang['users']['affiliates']['invalidaffiliates'], null, 'html');
-            return;
-        }
-        $marzbanDiscountaffiliates = select("affiliates", "*", null, null, "select");
-        if ($marzbanDiscountaffiliates['Discount'] == "onDiscountaffiliates") {
-            $marzbanDiscountaffiliates = select("affiliates", "*", null, null, "select");
-            $Balance_user = select("user", "*", "id", $affiliatesid, "select");
-            $Balance_add_user = $Balance_user['Balance'] + $marzbanDiscountaffiliates['price_Discount'];
-            update("user", "Balance", $Balance_add_user, "id", $affiliatesid);
-            $addbalancediscount = number_format($marzbanDiscountaffiliates['price_Discount'], 0);
-            sendmessage($affiliatesid, sprintf($textbotlang['users']['affiliates']['giftuser'], $addbalancediscount, $from_id), null, 'html');
-        }
         sendmessage($from_id, $datatextbot['text_start'], $keyboard, 'html');
-        $useraffiliates = select("user", "*", "id", $affiliatesid, "select");
-        $addcountaffiliates = intval($useraffiliates['affiliatescount']) + 1;
-        update("user", "affiliates", $affiliatesid, "id", $from_id);
-        update("user", "affiliatescount", $addcountaffiliates, "id", $affiliatesid);
+        return;
     }
 }
 $timebot = time();
@@ -200,7 +172,6 @@ if (floor($TimeLastMessage / 60) >= 1) {
         return;
     }
 } #-----------Channel------------#
-$chanelcheck = channel($channels['link']);
 if ($datain == "confirmchannel") {
     if (count($chanelcheck) != 0 && !in_array($from_id, $admin_ids)) {
         telegram(
@@ -2073,32 +2044,9 @@ if ($datain == "back_to_menu") {
 }
 
 if ($text == $textbotlang['users']['affiliates']['btn']) {
-    $affiliatesvalue = select("affiliates", "*", null, null, "select")['affiliatesstatus'];
-    if ($affiliatesvalue == "offaffiliates") {
-        sendmessage($from_id, $textbotlang['users']['affiliates']['offaffiliates'], $keyboard, 'HTML');
-        return;
-    }
-    $affiliates = select("affiliates", "*", null, null, "select");
-    $textaffiliates = "{$affiliates['description']}\n\n🔗 https://t.me/$usernamebot?start=$from_id";
-    telegram('sendphoto', [
-        'chat_id' => $from_id,
-        'photo' => $affiliates['id_media'],
-        'caption' => $textaffiliates,
-        'parse_mode' => "HTML",
-    ]);
-    $affiliatescommission = select("affiliates", "*", null, null, "select");
-    if ($affiliatescommission['status_commission'] == "oncommission") {
-        $affiliatespercentage = $affiliatescommission['affiliatespercentage'] . $textbotlang['users']['Percentage'];
-    } else {
-        $affiliatespercentage = $textbotlang['users']['stateus']['disabled'];
-    }
-    if ($affiliatescommission['Discount'] == "onDiscountaffiliates") {
-        $price_Discount = $affiliatescommission['price_Discount'] . $textbotlang['users']['IRT'];
-    } else {
-        $price_Discount = $textbotlang['users']['stateus']['disabled'];
-    }
-    $textaffiliates = sprintf($textbotlang['users']['affiliates']['infotext'], $price_Discount, $affiliatespercentage);
-    sendmessage($from_id, $textaffiliates, $keyboard, 'HTML');
+    // غیرفعال کردن قابلیت زیر مجموعه گیری
+    sendmessage($from_id, "این قابلیت در حال حاضر غیرفعال است.", $keyboard, 'HTML');
+    return;
 }
 require_once 'admin.php';
 $connect->close();
