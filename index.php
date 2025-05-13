@@ -739,7 +739,7 @@ if (preg_match('/subscriptionurl_(\w+)/', $datain, $dataget)) {
             ]
         ]
     ]);
-    $textextend = sprintf($textbotlang['users']['extend']['invoicExtend'], $nameloc['username'], $product['name_product'], $product['price_product'], $product['Service_time'], $product['Service_time'], $product['Volume_constraint']);
+    $textextend = sprintf($textbotlang['users']['extend']['invoicExtend'], $nameloc['username'], $product['name_product'], $product['price_product'], $product['Service_time']);
     Editmessagetext($from_id, $message_id, $textextend, $keyboardextend);
 } elseif (preg_match('/confirmserivce-(.*)/', $datain, $dataget)) {
     $codeproduct = $dataget[1];
