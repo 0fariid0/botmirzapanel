@@ -1,0 +1,32 @@
+RewriteEngine On
+
+# Set the base path for the bot
+RewriteBase /bot/
+
+# If the request is not for an existing file or directory
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+
+# Admin panel routing
+RewriteRule ^admin/?$ src/Admin/login.php [L]
+RewriteRule ^admin/(.*)$ src/Admin/$1 [L]
+
+# All other requests to index.php
+RewriteRule ^(.*)$ index.php [QSA,L]
+
+# Protect sensitive files
+<FilesMatch "^\.">
+    Order allow,deny
+    Deny from all
+</FilesMatch>
+
+<FilesMatch "^(\.env|config\.php|install\.sh)$">
+    Order allow,deny
+    Deny from all
+</FilesMatch>
+
+# PHP settings
+php_value upload_max_filesize 10M
+php_value post_max_size 10M
+php_value max_execution_time 300
+php_value max_input_time 300 

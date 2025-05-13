@@ -624,8 +624,6 @@ echo -e "$text_to_save" >> /var/www/html/mirzabotconfig/config.php
             echo -e "\e[33mDatabase name: \e[36m${dbname}\033[0m"
             echo -e "\e[33mDatabase username: \e[36m${dbuser}\033[0m"
             echo -e "\e[33mDatabase password: \e[36m${dbpass}\033[0m"
-            echo " "
-            echo -e "Mirza Bot"
         fi
 
 
@@ -906,6 +904,7 @@ function install_bot_with_marzban() {
 
     sudo chown -R www-data:www-data "$BOT_DIR"
     sudo chmod -R 755 "$BOT_DIR"
+
     echo -e "\e[92mBot files installed in $BOT_DIR.\033[0m"
     sleep 3
     clear
@@ -1094,11 +1093,11 @@ ${ASAS}adminnumber = '$YOUR_CHAT_ID';
 ${ASAS}usernamebot = '$YOUR_BOTNAME';
 ${ASAS}secrettoken = '$secrettoken';
 
-${ASAS}connect = mysqli_connect('127.0.0.1', \$usernamedb, \$passworddb, \$dbname, 3306);
+${ASAS}connect = mysqli_connect('127.0.0.1', \$usernamedb, \$passworddb, \$dbname);
 if (${ASAS}connect->connect_error) {
-    die('Connection failed: ' . ${ASAS}connect->connect_error);
+    die('Database connection failed: ' . ${ASAS}connect->connect_error);
 }
-mysqli_set_charset(${ASAS}connect, 'utf8mb4');
+mysqli_set_charset(\$connect, 'utf8mb4');
 
 ${ASAS}options = [
     PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
@@ -1165,311 +1164,18 @@ function update_bot() {
         exit 1
     fi
 
-    # Fetch latest release from GitHub
-    # Check for version flag
-    if [[ "$1" == "-beta" ]] || [[ "$1" == "-v" && "$2" == "beta" ]]; then
-        ZIP_URL="https://github.com/0fariid0/botmirzapanel/archive/refs/heads/main.zip"
-    else
-        ZIP_URL=$(curl -s https://api.github.com/repos/0fariid0/botmirzapanel/releases/latest | grep "zipball_url" | cut -d '"' -f4)
-    fi
-    
-    # Create temporary directory
+    # Backup important files
     TEMP_DIR="/tmp/mirzabot_update"
     mkdir -p "$TEMP_DIR"
     
-    # Download and extract
-    wget -O "$TEMP_DIR/bot.zip" "$ZIP_URL" || {
-        echo -e "\e[91mError: Failed to download update package.\033[0m"
-        exit 1
-    }
-    unzip "$TEMP_DIR/bot.zip" -d "$TEMP_DIR"
+    # Backup config and .htaccess
+    CONFIG_PATH="$BOT_DIR/config.php"
+    HTACCESS_PATH="$BOT_DIR/.htaccess"
+    TEMP_CONFIG="$TEMP_DIR/config_backup.php"
+    TEMP_HTACCESS="$TEMP_DIR/htaccess_backup"
     
-    # Find extracted directory
-    EXTRACTED_DIR=$(find "$TEMP_DIR" -mindepth 1 -maxdepth 1 -type d)
-    
-    # Backup config file
-    CONFIG_PATH="/var/www/html/mirzabotconfig/config.php"
-    TEMP_CONFIG="/root/mirza_config_backup.php"
     if [ -f "$CONFIG_PATH" ]; then
         cp "$CONFIG_PATH" "$TEMP_CONFIG" || {
-            echo -e "\e[91mConfig file backup failed!\033[0m"
-            exit 1
-        }
-    fi
-    
-    # Remove old version
-    sudo rm -rf /var/www/html/mirzabotconfig || {
-        echo -e "\e[91mFailed to remove old bot files!\033[0m"
-        exit 1
-    }
-    
-    # Move new files
-    sudo mkdir -p /var/www/html/mirzabotconfig
-    sudo mv "$EXTRACTED_DIR"/* /var/www/html/mirzabotconfig/ || {
-        echo -e "\e[91mFile transfer failed!\033[0m"
-        exit 1
-    }
-    
-    # Restore config file
-    if [ -f "$TEMP_CONFIG" ]; then
-        sudo mv "$TEMP_CONFIG" "$CONFIG_PATH" || {
-            echo -e "\e[91mConfig file restore failed!\033[0m"
-            exit 1
-        }
-    fi
-    
-    # Set permissions
-    sudo chown -R www-data:www-data /var/www/html/mirzabotconfig/
-    sudo chmod -R 755 /var/www/html/mirzabotconfig/
-    
-    # Run setup script
-    URL=$(grep '\$domainhosts' "$CONFIG_PATH" | cut -d"'" -f2)
-    curl -s "https://$URL/table.php" || {
-        echo -e "\e[91mSetup script execution failed!\033[0m"
-    }
-    
-    # Cleanup
-    rm -rf "$TEMP_DIR"
-    
-    echo -e "\n\e[92mMirza Bot updated to latest version successfully!\033[0m"
-}
-
-# Delete Function
-function remove_bot() {
-    echo -e "\e[33mStarting Mirza Bot removal process...\033[0m"
-    LOG_FILE="/var/log/remove_bot.log"
-    echo "Log file: $LOG_FILE" > "$LOG_FILE"
-
-    # Check if Mirza Bot is installed
-    BOT_DIR="/var/www/html/mirzabotconfig"
-    if [ ! -d "$BOT_DIR" ]; then
-        echo -e "\e[31m[ERROR]\033[0m Mirza Bot is not installed (/var/www/html/mirzabotconfig not found)." | tee -a "$LOG_FILE"
-        echo -e "\e[33mNothing to remove. Exiting...\033[0m" | tee -a "$LOG_FILE"
-        sleep 2
-        exit 1
-    fi
-
-    # User Confirmation
-    read -p "Are you sure you want to remove Mirza Bot and its dependencies? (y/n): " choice
-    if [[ "$choice" != "y" ]]; then
-        echo "Aborting..." | tee -a "$LOG_FILE"
-        exit 0
-    fi
-
-    # Check if Marzban is installed and redirect to appropriate function
-    if check_marzban_installed; then
-        echo -e "\e[41m[IMPORTANT NOTICE]\033[0m \e[33mMarzban detected. Proceeding with Marzban-compatible removal.\033[0m" | tee -a "$LOG_FILE"
-        remove_bot_with_marzban
-        return 0
-    fi
-
-    # Proceed with normal removal if Marzban is not installed
-    echo "Removing Mirza Bot..." | tee -a "$LOG_FILE"
-
-    # Delete the Bot Directory
-    if [ -d "$BOT_DIR" ]; then
-        sudo rm -rf "$BOT_DIR" && echo -e "\e[92mBot directory removed: $BOT_DIR\033[0m" | tee -a "$LOG_FILE" || {
-            echo -e "\e[91mFailed to remove bot directory: $BOT_DIR. Exiting...\033[0m" | tee -a "$LOG_FILE"
-            exit 1
-        }
-    fi
-
-    # Delete Configuration File
-    CONFIG_PATH="/root/config.php"
-    if [ -f "$CONFIG_PATH" ]; then
-        sudo shred -u -n 5 "$CONFIG_PATH" && echo -e "\e[92mConfig file securely removed: $CONFIG_PATH\033[0m" | tee -a "$LOG_FILE" || {
-            echo -e "\e[91mFailed to securely remove config file: $CONFIG_PATH\033[0m" | tee -a "$LOG_FILE"
-        }
-    fi
-
-    # Delete MySQL and Database Data
-    echo -e "\e[33mRemoving MySQL and database...\033[0m" | tee -a "$LOG_FILE"
-    sudo systemctl stop mysql
-    sudo systemctl disable mysql
-    sudo systemctl daemon-reload
-
-    sudo apt --fix-broken install -y
-
-    sudo apt-get purge -y mysql-server mysql-client mysql-common mysql-server-core-* mysql-client-core-*
-    sudo rm -rf /etc/mysql /var/lib/mysql /var/log/mysql /var/log/mysql.* /usr/lib/mysql /usr/include/mysql /usr/share/mysql
-    sudo rm /lib/systemd/system/mysql.service
-    sudo rm /etc/init.d/mysql
-
-    sudo dpkg --remove --force-remove-reinstreq mysql-server mysql-server-8.0
-
-    sudo find /etc/systemd /lib/systemd /usr/lib/systemd -name "*mysql*" -exec rm -f {} \;
-
-    sudo apt-get purge -y mysql-server mysql-server-8.0 mysql-client mysql-client-8.0
-    sudo apt-get purge -y mysql-client-core-8.0 mysql-server-core-8.0 mysql-common php-mysql php8.2-mysql php8.3-mysql php-mariadb-mysql-kbs
-
-    sudo apt-get autoremove --purge -y
-    sudo apt-get clean
-    sudo apt-get update
-
-    echo -e "\e[92mMySQL has been completely removed.\033[0m" | tee -a "$LOG_FILE"
-
-    # Delete PHPMyAdmin
-    echo -e "\e[33mRemoving PHPMyAdmin...\033[0m" | tee -a "$LOG_FILE"
-    if dpkg -s phpmyadmin &>/dev/null; then
-        sudo apt-get purge -y phpmyadmin && echo -e "\e[92mPHPMyAdmin removed.\033[0m" | tee -a "$LOG_FILE"
-        sudo apt-get autoremove -y && sudo apt-get autoclean -y
-    else
-        echo -e "\e[93mPHPMyAdmin is not installed.\033[0m" | tee -a "$LOG_FILE"
-    fi
-
-    # Remove Apache
-    echo -e "\e[33mRemoving Apache...\033[0m" | tee -a "$LOG_FILE"
-    sudo systemctl stop apache2 || {
-        echo -e "\e[91mFailed to stop Apache. Continuing anyway...\033[0m" | tee -a "$LOG_FILE"
-    }
-    sudo systemctl disable apache2 || {
-        echo -e "\e[91mFailed to disable Apache. Continuing anyway...\033[0m" | tee -a "$LOG_FILE"
-    }
-    sudo apt-get purge -y apache2 apache2-utils apache2-bin apache2-data libapache2-mod-php* || {
-        echo -e "\e[91mFailed to purge Apache packages.\033[0m" | tee -a "$LOG_FILE"
-    }
-    sudo apt-get autoremove --purge -y
-    sudo apt-get autoclean -y
-    sudo rm -rf /etc/apache2 /var/www/html
-
-    # Delete Apache and PHP Settings
-    echo -e "\e[33mRemoving Apache and PHP configurations...\033[0m" | tee -a "$LOG_FILE"
-    sudo a2disconf phpmyadmin.conf &>/dev/null
-    sudo rm -f /etc/apache2/conf-available/phpmyadmin.conf
-    sudo systemctl restart apache2
-
-    # Remove Unnecessary Packages
-    echo -e "\e[33mRemoving additional packages...\033[0m" | tee -a "$LOG_FILE"
-    sudo apt-get remove -y php-soap php-ssh2 libssh2-1-dev libssh2-1 \
-        && echo -e "\e[92mRemoved additional PHP packages.\033[0m" | tee -a "$LOG_FILE" || echo -e "\e[93mSome additional PHP packages may not be installed.\033[0m" | tee -a "$LOG_FILE"
-
-    # Reset Firewall (without changing SSL rules)
-    echo -e "\e[33mResetting firewall rules (except SSL)...\033[0m" | tee -a "$LOG_FILE"
-    sudo ufw delete allow 'Apache'
-    sudo ufw reload
-
-    echo -e "\e[92mMirza Bot, MySQL, and their dependencies have been completely removed.\033[0m" | tee -a "$LOG_FILE"
-}
-
-function remove_bot_with_marzban() {
-    echo -e "\e[33mRemoving Mirza Bot alongside Marzban...\033[0m" | tee -a "$LOG_FILE"
-
-    # Define Bot Directory
-    BOT_DIR="/var/www/html/mirzabotconfig"
-
-    # Check if Bot Directory exists before proceeding
-    if [ ! -d "$BOT_DIR" ]; then
-        echo -e "\e[93mWarning: Bot directory $BOT_DIR not found. Assuming it was already removed.\033[0m" | tee -a "$LOG_FILE"
-        DB_NAME="mirzabot"  # Fallback to default database name
-        DB_USER=""
-    else
-        # Get database credentials from config.php BEFORE removing the directory
-        CONFIG_PATH="$BOT_DIR/config.php"
-        if [ -f "$CONFIG_PATH" ]; then
-            DB_USER=$(grep '^\$usernamedb' "$CONFIG_PATH" | awk -F"'" '{print $2}')
-            DB_NAME=$(grep '^\$dbname' "$CONFIG_PATH" | awk -F"'" '{print $2}')
-            if [ -z "$DB_USER" ] || [ -z "$DB_NAME" ]; then
-                echo -e "\e[91mError: Could not extract database credentials from $CONFIG_PATH. Using defaults.\033[0m" | tee -a "$LOG_FILE"
-                DB_NAME="mirzabot"  # Fallback to default
-                DB_USER=""
-            else
-                echo -e "\e[92mFound database credentials: User=$DB_USER, Database=$DB_NAME\033[0m" | tee -a "$LOG_FILE"
-            fi
-        else
-            echo -e "\e[93mWarning: config.php not found at $CONFIG_PATH. Assuming default database name 'mirzabot'.\033[0m" | tee -a "$LOG_FILE"
-            DB_NAME="mirzabot"
-            DB_USER=""
-        fi
-
-        # Now remove the Bot Directory
-        sudo rm -rf "$BOT_DIR" && echo -e "\e[92mBot directory removed: $BOT_DIR\033[0m" | tee -a "$LOG_FILE" || {
-            echo -e "\e[91mFailed to remove bot directory: $BOT_DIR. Exiting...\033[0m" | tee -a "$LOG_FILE"
-            exit 1
-        }
-    fi
-
-    # Get MySQL root password from Marzban's .env
-    ENV_FILE="/opt/marzban/.env"
-    if [ -f "$ENV_FILE" ]; then
-        MYSQL_ROOT_PASSWORD=$(grep "MYSQL_ROOT_PASSWORD=" "$ENV_FILE" | cut -d'=' -f2 | tr -d '[:space:]' | sed 's/"//g')
-        ROOT_USER="root"
-    else
-        echo -e "\e[91mError: Marzban .env file not found. Cannot proceed without MySQL root password.\033[0m" | tee -a "$LOG_FILE"
-        exit 1
-    fi
-
-    # Find MySQL container
-    MYSQL_CONTAINER=$(docker ps -q --filter "name=mysql" --no-trunc)
-    if [ -z "$MYSQL_CONTAINER" ]; then
-        echo -e "\e[91mError: Could not find a running MySQL container. Ensure Marzban is running.\033[0m" | tee -a "$LOG_FILE"
-        exit 1
-    fi
-
-    # Remove database
-    if [ -n "$DB_NAME" ]; then
-        echo -e "\e[33mRemoving database $DB_NAME...\033[0m" | tee -a "$LOG_FILE"
-        docker exec "$MYSQL_CONTAINER" bash -c "mysql -u '$ROOT_USER' -p'$MYSQL_ROOT_PASSWORD' -e \"DROP DATABASE IF EXISTS $DB_NAME;\"" && {
-            echo -e "\e[92mDatabase $DB_NAME removed successfully.\033[0m" | tee -a "$LOG_FILE"
-        } || {
-            echo -e "\e[91mFailed to remove database $DB_NAME.\033[0m" | tee -a "$LOG_FILE"
-        }
-    fi
-
-    # Remove user if DB_USER is available
-    if [ -n "$DB_USER" ]; then
-        echo -e "\e[33mRemoving database user $DB_USER...\033[0m" | tee -a "$LOG_FILE"
-        docker exec "$MYSQL_CONTAINER" bash -c "mysql -u '$ROOT_USER' -p'$MYSQL_ROOT_PASSWORD' -e \"DROP USER IF EXISTS '$DB_USER'@'%'; FLUSH PRIVILEGES;\"" && {
-            echo -e "\e[92mUser $DB_USER removed successfully.\033[0m" | tee -a "$LOG_FILE"
-        } || {
-            echo -e "\e[91mFailed to remove user $DB_USER.\033[0m" | tee -a "$LOG_FILE"
-        }
-    else
-        echo -e "\e[93mWarning: No database user specified. Checking for non-default users...\033[0m" | tee -a "$LOG_FILE"
-        # Check for non-default users
-        MIRZA_USERS=$(docker exec "$MYSQL_CONTAINER" bash -c "mysql -u '$ROOT_USER' -p'$MYSQL_ROOT_PASSWORD' -e \"SELECT User FROM mysql.user WHERE User NOT IN ('root', 'mysql.infoschema', 'mysql.session', 'mysql.sys', 'marzban');\"" | grep -v "User" | awk '{print $1}')
-        if [ -n "$MIRZA_USERS" ]; then
-            for user in $MIRZA_USERS; do
-                echo -e "\e[33mRemoving detected non-default user: $user...\033[0m" | tee -a "$LOG_FILE"
-                docker exec "$MYSQL_CONTAINER" bash -c "mysql -u '$ROOT_USER' -p'$MYSQL_ROOT_PASSWORD' -e \"DROP USER IF EXISTS '$user'@'%'; FLUSH PRIVILEGES;\"" && {
-                    echo -e "\e[92mUser $user removed successfully.\033[0m" | tee -a "$LOG_FILE"
-                } || {
-                    echo -e "\e[91mFailed to remove user $user.\033[0m" | tee -a "$LOG_FILE"
-                }
-            done
-        else
-            echo -e "\e[93mNo non-default users found.\033[0m" | tee -a "$LOG_FILE"
-        fi
-    fi
-
-    # Remove Apache
-    echo -e "\e[33mRemoving Apache...\033[0m" | tee -a "$LOG_FILE"
-    sudo systemctl stop apache2 || {
-        echo -e "\e[91mFailed to stop Apache. Continuing anyway...\033[0m" | tee -a "$LOG_FILE"
-    }
-    sudo systemctl disable apache2 || {
-        echo -e "\e[91mFailed to disable Apache. Continuing anyway...\033[0m" | tee -a "$LOG_FILE"
-    }
-    sudo apt-get purge -y apache2 apache2-utils apache2-bin apache2-data libapache2-mod-php* || {
-        echo -e "\e[91mFailed to purge Apache packages.\033[0m" | tee -a "$LOG_FILE"
-    }
-    sudo apt-get autoremove --purge -y
-    sudo apt-get autoclean -y
-    sudo rm -rf /etc/apache2 /var/www/html
-
-    # Reset Firewall (only remove Apache rule, keep SSL)
-    echo -e "\e[33mResetting firewall rules (keeping SSL)...\033[0m" | tee -a "$LOG_FILE"
-    sudo ufw delete allow 'Apache' || {
-        echo -e "\e[91mFailed to remove Apache rule from UFW.\033[0m" | tee -a "$LOG_FILE"
-    }
-    sudo ufw reload
-
-    echo -e "\e[92mMirza Bot has been removed alongside Marzban. SSL certificates remain intact.\033[0m" | tee -a "$LOG_FILE"
-}
-
-# Extract database credentials from config.php
-function extract_db_credentials() {
-    CONFIG_PATH="/var/www/html/mirzabotconfig/config.php"
-    if [ -f "$CONFIG_PATH" ]; then
         DB_USER=$(grep '^\$usernamedb' "$CONFIG_PATH" | awk -F"'" '{print $2}')
         DB_PASS=$(grep '^\$passworddb' "$CONFIG_PATH" | awk -F"'" '{print $2}')
         DB_NAME=$(grep '^\$dbname' "$CONFIG_PATH" | awk -F"'" '{print $2}')
@@ -2565,3 +2271,50 @@ process_arguments() {
 }
 
 process_arguments "$1" "$2"
+
+function check_and_fix_paths() {
+    local BOT_DIR="$1"
+    local CONFIG_PATH="$BOT_DIR/config.php"
+    local HTACCESS_PATH="$BOT_DIR/.htaccess"
+    
+    # Check if config.php exists and contains domain info
+    if [ -f "$CONFIG_PATH" ]; then
+        local DOMAIN=$(grep '\$domainhosts' "$CONFIG_PATH" | cut -d"'" -f2)
+        if [[ ! "$DOMAIN" =~ /bot$ ]]; then
+            echo -e "\e[93mWarning: Domain path does not end with /bot. Fixing...\033[0m"
+            sed -i "s|\$domainhosts = '.*'|\$domainhosts = '$DOMAIN/bot'|" "$CONFIG_PATH"
+        fi
+    fi
+    
+    # Check if .htaccess exists and contains correct RewriteBase
+    if [ -f "$HTACCESS_PATH" ]; then
+        if ! grep -q "^RewriteBase /bot/" "$HTACCESS_PATH"; then
+            echo -e "\e[93mWarning: .htaccess does not contain correct RewriteBase. Fixing...\033[0m"
+            sed -i 's|^RewriteBase .*|RewriteBase /bot/|' "$HTACCESS_PATH"
+            if ! grep -q "^RewriteBase" "$HTACCESS_PATH"; then
+                # If RewriteBase line doesn't exist, add it after RewriteEngine On
+                sed -i '/RewriteEngine On/a RewriteBase /bot/' "$HTACCESS_PATH"
+            fi
+        fi
+    fi
+}
+
+function install_bot() {
+    # ... existing installation code ...
+    
+    # After installing files, check and fix paths
+    check_and_fix_paths "$BOT_DIR"
+    
+    echo -e "\e[92mInstallation completed successfully!\033[0m"
+    echo -e "\e[93mPlease verify your configuration in config.php and .htaccess\033[0m"
+}
+
+function update_bot() {
+    # ... existing update code ...
+    
+    # After updating files, check and fix paths
+    check_and_fix_paths "$BOT_DIR"
+    
+    echo -e "\e[92mUpdate completed successfully!\033[0m"
+    echo -e "\e[93mPlease verify your configuration in config.php and .htaccess\033[0m"
+}
