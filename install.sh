@@ -2322,7 +2322,7 @@ function update_bot() {
 function extract_db_credentials() {
     CONFIG_PATH="/var/www/html/mirzabotconfig/config.php"
     if [ -f "$CONFIG_PATH" ]; then
-        DB_USER=$(grep '^\$username' "$CONFIG_PATH" | awk -F"'" '{print $2}')
+        DB_USER=$(grep '^\$usernamedb' "$CONFIG_PATH" | awk -F"'" '{print $2}')
         DB_PASS=$(grep '^\$passworddb' "$CONFIG_PATH" | awk -F"'" '{print $2}')
         DB_NAME=$(grep '^\$dbname' "$CONFIG_PATH" | awk -F"'" '{print $2}')
         TELEGRAM_TOKEN=$(grep '^\$APIKEY' "$CONFIG_PATH" | awk -F"'" '{print $2}')
