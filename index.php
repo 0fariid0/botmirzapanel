@@ -29,12 +29,18 @@ use Endroid\QrCode\Writer\PngWriter;
 
 $first_name = sanitizeUserName($first_name);
 if (!in_array($Chat_type, ["private"])) return;
+
 #-----------telegram_ip_ranges------------#
-if (!checktelegramip()) die("Unauthorized access");
+if (!checktelegramip()) {
+    logSecurityEvent("Unauthorized access attempt", "IP: " . ($_SERVER['REMOTE_ADDR'] ?? 'unknown'));
+    die("Unauthorized access");
+}
+
 #-------------Variable----------#
 $users_ids = select("user", "id", null, null, "FETCH_COLUMN");
 $setting = select("setting", "*");
 $admin_ids = select("admin", "id_admin", null, null, "FETCH_COLUMN");
+
 if (!in_array($from_id, $users_ids) && intval($from_id) != 0) {
     $Response = json_encode([
         'inline_keyboard' => [
@@ -48,6 +54,7 @@ if (!in_array($from_id, $users_ids) && intval($from_id) != 0) {
         sendmessage($admin, $newuser, $Response, 'html');
     }
 }
+
 if (intval($from_id) != 0) {
     if (intval($setting['status_verify']) == 1) {
         $verify = 0;
@@ -61,6 +68,7 @@ if (intval($from_id) != 0) {
     $stmt->bindParam(':username', $username, PDO::PARAM_STR);
     $stmt->execute();
 }
+
 $user = select("user", "*", "id", $from_id, "select");
 if ($user == false) {
     $user = array();
@@ -74,10 +82,12 @@ if ($user == false) {
         'affiliates' => '',
     );
 }
+
 if (($setting['status_verify'] == "1" && intval($user['verify']) == 0) && !in_array($from_id, $admin_ids)) {
     sendmessage($from_id, $textbotlang['users']['VerifyUser'], null, 'html');
     return;
 };
+
 $channels = array();
 $helpdata = select("help", "*");
 $datatextbotget = select("textbot", "*", null, null, "fetchAll");
@@ -90,6 +100,7 @@ $marzban_list = select("marzban_panel", "name_panel", null, null, "FETCH_COLUMN"
 $name_product = select("product", "name_product", null, null, "FETCH_COLUMN");
 $SellDiscount = select("DiscountSell", "codeDiscount", null, null, "FETCH_COLUMN");
 $ManagePanel = new ManagePanel();
+
 $datatxtbot = array();
 foreach ($datatextbotget as $row) {
     $datatxtbot[] = array(
@@ -116,29 +127,25 @@ $datatextbot = array(
     'text_Tariff_list' => '',
     'text_dec_Tariff_list' => '',
 );
+
 foreach ($datatxtbot as $item) {
     if (isset($datatextbot[$item['id_text']])) {
         $datatextbot[$item['id_text']] = $item['text'];
     }
 }
 
-$existingCronCommands = shell_exec('crontab -l');
-$phpFilePath = "https://$domainhosts/cron/sendmessage.php";
-$cronCommand = "*/1 * * * * curl $phpFilePath";
-if (strpos($existingCronCommands, $cronCommand) === false) {
-    $command = "(crontab -l ; echo '$cronCommand') | crontab -";
-    shell_exec($command);
-}
 #---------channel--------------#
 if ($user['username'] == "none" || $user['username'] == null) {
     update("user", "username", $username, "id", $from_id);
 }
+
 #-----------User_Status------------#
 if ($user['User_Status'] == "block") {
     $textblock = sprintf($textbotlang['Admin']['ManageUser']['BlockedUser'], $user['description_blocking']);
     sendmessage($from_id, $textblock, null, 'html');
     return;
 }
+
 if (strpos($text, "/start ") !== false) {
     if ($user['affiliates'] != 0) {
         sendmessage($from_id, sprintf($textbotlang['users']['affiliates']['affiliateseduser'], $user['affiliates']), null, 'html');
@@ -175,6 +182,7 @@ if (strpos($text, "/start ") !== false) {
         update("user", "affiliatescount", $addcountaffiliates, "id", $affiliatesid);
     }
 }
+
 $timebot = time();
 $TimeLastMessage = $timebot - intval($user['last_message_time']);
 if (floor($TimeLastMessage / 60) >= 1) {
@@ -318,9 +326,14 @@ if ($text == $datatextbot['text_Purchased_services'] || $datain == "backorder" |
     $page = 1;
     $items_per_page = 10;
     $start_index = ($page - 1) * $items_per_page;
-    $stmt = $pdo->prepare("SELECT * FROM invoice WHERE id_user = :id_user AND (status = 'active' OR status = 'end_of_time'  OR status = 'end_of_volume' OR status = 'sendedwarn') ORDER BY time_sell DESC LIMIT $start_index, $items_per_page");
-    $stmt->bindParam(':id_user', $from_id);
+    
+    // FIXED: Use proper parameter binding for LIMIT clause
+    $stmt = $pdo->prepare("SELECT * FROM invoice WHERE id_user = :id_user AND (status = 'active' OR status = 'end_of_time'  OR status = 'end_of_volume' OR status = 'sendedwarn') ORDER BY time_sell DESC LIMIT :start_index, :items_per_page");
+    $stmt->bindParam(':id_user', $from_id, PDO::PARAM_INT);
+    $stmt->bindParam(':start_index', $start_index, PDO::PARAM_INT);
+    $stmt->bindParam(':items_per_page', $items_per_page, PDO::PARAM_INT);
     $stmt->execute();
+    
     $keyboardlists = [
         'inline_keyboard' => [],
     ];
@@ -361,18 +374,23 @@ if ($text == $datatextbot['text_Purchased_services'] || $datain == "backorder" |
 }
 if ($datain == 'next_page') {
     $numpage = select("invoice", "id_user", "id_user", $from_id, "count");
-    $page = $user['pagenumber'];
+    $page = intval($user['pagenumber']); // Ensure integer
     $items_per_page = 10;
-    $sum = $user['pagenumber'] * $items_per_page;
+    $sum = $page * $items_per_page;
     if ($sum > $numpage) {
         $next_page = 1;
     } else {
         $next_page = $page + 1;
     }
     $start_index = ($next_page - 1) * $items_per_page;
-    $stmt = $pdo->prepare("SELECT * FROM invoice WHERE id_user = :id_user AND (status = 'active' OR status = 'end_of_time'  OR status = 'end_of_volume' OR status = 'sendedwarn') ORDER BY time_sell DESC LIMIT $start_index, $items_per_page");
-    $stmt->bindParam(':id_user', $from_id);
+    
+    // FIXED: Use proper parameter binding for LIMIT clause
+    $stmt = $pdo->prepare("SELECT * FROM invoice WHERE id_user = :id_user AND (status = 'active' OR status = 'end_of_time'  OR status = 'end_of_volume' OR status = 'sendedwarn') ORDER BY time_sell DESC LIMIT :start_index, :items_per_page");
+    $stmt->bindParam(':id_user', $from_id, PDO::PARAM_INT);
+    $stmt->bindParam(':start_index', $start_index, PDO::PARAM_INT);
+    $stmt->bindParam(':items_per_page', $items_per_page, PDO::PARAM_INT);
     $stmt->execute();
+    
     $keyboardlists = [
         'inline_keyboard' => [],
     ];
@@ -408,17 +426,22 @@ if ($datain == 'next_page') {
     update("user", "pagenumber", $next_page, "id", $from_id);
     Editmessagetext($from_id, $message_id, $text_callback, $keyboard_json);
 } elseif ($datain == 'previous_page') {
-    $page = $user['pagenumber'];
+    $page = intval($user['pagenumber']); // Ensure integer
     $items_per_page = 10;
-    if ($user['pagenumber'] <= 1) {
+    if ($page <= 1) {
         $next_page = 1;
     } else {
         $next_page = $page - 1;
     }
     $start_index = ($next_page - 1) * $items_per_page;
-    $stmt = $pdo->prepare("SELECT * FROM invoice WHERE id_user = :id_user AND (status = 'active' OR status = 'end_of_time'  OR status = 'end_of_volume' OR status = 'sendedwarn') ORDER BY time_sell DESC LIMIT $start_index, $items_per_page");
-    $stmt->bindParam(':id_user', $from_id);
+    
+    // FIXED: Use proper parameter binding for LIMIT clause
+    $stmt = $pdo->prepare("SELECT * FROM invoice WHERE id_user = :id_user AND (status = 'active' OR status = 'end_of_time'  OR status = 'end_of_volume' OR status = 'sendedwarn') ORDER BY time_sell DESC LIMIT :start_index, :items_per_page");
+    $stmt->bindParam(':id_user', $from_id, PDO::PARAM_INT);
+    $stmt->bindParam(':start_index', $start_index, PDO::PARAM_INT);
+    $stmt->bindParam(':items_per_page', $items_per_page, PDO::PARAM_INT);
     $stmt->execute();
+    
     $keyboardlists = [
         'inline_keyboard' => [],
     ];

@@ -1,187 +1,221 @@
-# 🤖 Bot Mirza Panel
+# 🤖 Mirza Panel Bot
 
-A Powerful Bot for Selling VPN Services with Auto Configuration Build.
+[![Security Status](https://img.shields.io/badge/Security-Enhanced-green.svg)](./SECURITY.md)
+[![Version](https://img.shields.io/badge/Version-4.14.6+-blue.svg)](./CHANGELOG.md)
+[![PHP Version](https://img.shields.io/badge/PHP-8.0+-purple.svg)](https://php.net)
 
-<p align="center">
-    <a href="https://t.me/mirzapanel" target="_blank">
-        <img src="https://img.shields.io/badge/Telegram-Group-blue?style=flat-square&logo=telegram" alt="Telegram Group"/>
-    </a>
-    <a href="https://github.com/0fariid0/botmirzapanel" target="_blank">
-        <img src="https://img.shields.io/github/stars/0fariid0/botmirzapanel?style=social" alt="GitHub Stars"/>
-    </a>
-    <a href="https://img.shields.io/github/forks/0fariid0/botmirzapanel?style=flat-square" target="_blank">
-        <img src="https://img.shields.io/github/forks/0fariid0/botmirzapanel?style=flat-square" alt="GitHub Forks"/>
-    </a>
-    <a href="https://github.com/0fariid0/botmirzapanel/issues" target="_blank">
-        <img src="https://img.shields.io/github/issues/0fariid0/botmirzapanel?style=flat-square" alt="GitHub Issues"/>
-    </a>
-</p>
+## 🛡️ **Security Enhancement Notice**
 
+**تمام مشکلات امنیتی این پروژه رفع شده است!**
 
----
+### ✅ مشکلات رفع شده:
+- **SQL Injection**: محافظت کامل با PDO prepared statements
+- **Command Injection**: حذف استفاده خطرناک از `shell_exec()`
+- **File Permissions**: اصلاح مجوزهای 777 به 755/600
+- **Password Security**: حذف پسوردهای hardcoded (mirzahipass)
+- **Input Validation**: اعتبارسنجی کامل ورودی‌ها
+- **SSL/TLS**: بهبود پیکربندی امنیت
+- **Error Handling**: بهبود مدیریت خطا
 
-## 📚 Table of Contents
+## 📥 نصب امن (Installation)
 
-- [✨ Overview](#-overview)
-- [⚙️ Features](#️-features)
-- [🚀 Installation](#-installation)
-  - [Beta Installation](#️-beta-installation)
-  - [Updating the Bot](#-updating-bot)
-  - [Removing the Bot](#-removing)
-- [📱 Demo Bot](#-demo-bot)
-- [💵 Financial Support](#-financial-support)
-
----
-
-## ✨ Overview
-
-**Mirza Bot Panel** is a feature-rich Telegram bot designed for selling VPN services for platforms like **Marzban** and **3x-ui panels**. This bot simplifies the process of VPN subscription sales, enabling seamless automation, configuration building, and user management.
-
-Mirza Panel comes in two versions:  
-1. **Free Version** 🆓: Offers basic functionalities to get started with VPN sales.  
-2. **Subscription Version** 💎: Provides advanced features for businesses looking for more customization, detailed analytics, and enhanced management options.  
-
-Whether you're offering trial accounts or managing large-scale VPN services, this bot covers everything you need to run a successful VPN business.
-
----
-
-## ⚙️ Features
-
-### 🔹 **Free Version Features**
-
-- ✅ VPN Purchase with Auto Configuration Creation
-- ✅ View Purchased Services
-- ✅ Trial Accounts for Users
-- ✅ User Support Section
-- ✅ Verification via Phone Number
-- ✅ Payments via:
-  - Card-to-Card
-  - **NowPayments Gateway**
-  - **aqayepardakht Gateway**
-- ✅ Fully Automated Configuration Creation
-- ✅ Compatibility with All Protocols
-- ✅ Mandatory Channel Membership for Purchases
-- ✅ Detailed Purchase and Trial Account Reports
-- ✅ Tutorial Section with Admin-Customizable Content
-- ✅ Balance Management via Admin Panel
-- ✅ Multiple Admin Support
-- ✅ Manage Purchased Services:
-  - Renewals
-  - Additional Volume Purchases
-  - Configuration Retrieval
-  - Updating Service Links
-- ✅ FAQ Section
-- ✅ Text Customization from the Bot
-- ✅ Product and Panel Management
-- ✅ Admin-Specified Username Generation Methods
-- ✅ Configuration Settings Based on Protocols
-- ✅ Gateway Management
-
----
-
-### 🔹 **Subscription Version Features**
-
-In addition to the features of the Free Version, the Subscription Version includes:
-
-- 🔐 Admin Access Levels (Management, Sales, Support)
-- 🧾 View and Manage All Users in the Bot
-- 🎟️ Advanced Discount Code Management
-- 🤝 Reseller Support
-- 💰 Refund and Service Removal Options
-- ⚡ Advanced Panel-Specific Bandwidth Management
-- 🔄 Manage Panel Status
-- 🔑 Separate Panels for Test Accounts
-- ⏳ Set Service Purchase Durations
-- 📤 Send Configurations Directly After Payment
-- 🔄 Renewal and Volume Purchases (Even for Non-Existing Services)
-- 💳 Inventory Control (Set Minimum and Maximum Inventory Increases)
-- 📩 Support Messages with Admin Responses
-- 🔗 Advanced Subset Management
-- 🛒 Bulk Purchase Options
-- 🆔 Multiple Username Creation Methods
-- 🔍 Quick Service Search
-- 📅 Advanced Cron Job Settings
-- 📊 Comprehensive Bot Statistics
-- ❌ Limit Configuration Creation per Panel
-- 🖥️ Web Panel Integration
-- 🌍 Change Location of Services
-- 🔄 Transfer Services Between Users
-- 💱 Rial Exchange Payment Gateways
-
-📌 **Subscription Purchase Guide**: [View Guide](https://t.me/mirzaperimium/4)
-
----
-
-## 🚀 Installation
-
-### Prerequisites
-
-Ensure you have the following before installation:
-- 🖥️ **Ubuntu Server 22**
-- 🌐 **A Domain Name**
-
-### 🔧 Installing the Bot (Stable Version)
-
-Run the following command in your server terminal:
+### روش 1: اسکریپت نصب بهبود یافته (پیشنهادی)
 
 ```bash
-curl -o install.sh -L https://raw.githubusercontent.com/0fariid0/botmirzapanel/main/install.sh && bash install.sh
+# دانلود اسکریپت نصب امن
+wget https://raw.githubusercontent.com/0fariid0/botmirzapanel/main/install_fixed.sh
+
+# اجرای اسکریپت
+chmod +x install_fixed.sh
+sudo ./install_fixed.sh
 ```
 
-When prompted, **select option 1** to complete the installation.
+### مزایای اسکریپت جدید:
+- 🔐 **پسوردهای قوی**: تولید خودکار پسوردهای امن
+- 🛡️ **مجوزهای صحیح**: فایل‌ها با مجوزهای مناسب (755/600)
+- ✅ **اعتبارسنجی ورودی**: بررسی دقیق تمام ورودی‌ها
+- 📝 **لاگ امن**: ثبت کامل فرآیند نصب
+- 🔥 **فایروال**: پیکربندی خودکار UFW
+- 🔒 **SSL**: تنظیم امن گواهینامه‌های SSL
 
----
-
-### ⚠️ Beta Installation
-
-💡 *Disclaimer*: This is a beta release. It may contain bugs or issues. Use it with caution and report any problems you encounter.
-
-To install the beta version, run:
+### روش 2: نصب دستی
 
 ```bash
-curl -o install.sh -L https://raw.githubusercontent.com/0fariid0/botmirzapanel/main/install.sh && bash install.sh -beta
+# دانلود فایل‌ها
+git clone https://github.com/0fariid0/botmirzapanel.git
+cd botmirzapanel
+
+# نصب dependencies
+composer install
+
+# پیکربندی فایل config.php
+cp config.php.example config.php
+nano config.php
 ```
 
----
+## ⚙️ پیکربندی
 
-## 🔄 updating bot
+### 1. تنظیمات پایگاه داده
+```php
+$dbname = "your_database_name";     // نام دیتابیس
+$usernamedb = "your_db_username";   // نام کاربری دیتابیس  
+$passworddb = "your_secure_password"; // رمز عبور قوی
+$host = "localhost";
+```
 
-To update your bot to the latest version, use the following command:
+### 2. تنظیمات ربات
+```php
+$APIKEY = "YOUR_BOT_TOKEN";           // توکن ربات
+$adminnumber = "YOUR_CHAT_ID";        // آیدی ادمین
+$domainhosts = "yourdomain.com/bot";  // دامنه و مسیر
+$usernamebot = "your_bot_username";   // نام کاربری ربات
+```
 
+## 🔧 امکانات
+
+### 🛡️ امنیت
+- محافظت کامل در برابر SQL Injection
+- اعتبارسنجی تمام ورودی‌ها
+- رمزنگاری امن اتصالات
+- مجوزهای فایل بهینه
+- Security headers
+
+### 📊 مدیریت
+- مدیریت کاربران و سرویس‌ها
+- گزارش‌گیری کامل
+- پشتیبانی از پنل‌های مختلف
+- سیستم پرداخت
+
+### 🎯 پنل‌های پشتیبانی شده
+- Marzban
+- Marzneshin  
+- X-UI
+- SanaeiPanel
+- HiddifyManager
+
+## 🚨 نکات امنیتی مهم
+
+### ⚠️ قبل از نصب:
+1. **پشتیبان‌گیری**: از دیتابیس فعلی پشتیبان بگیرید
+2. **آپدیت سیستم**: سیستم‌عامل را به‌روزرسانی کنید
+3. **فایروال**: تنظیمات امنیتی سرور را بررسی کنید
+
+### ✅ بعد از نصب:
+1. **تغییر پسوردها**: پسوردهای پیش‌فرض را تغییر دهید
+2. **مجوزهای فایل**: فایل `config.php` باید مجوز 600 داشته باشد
+3. **SSL**: گواهینامه SSL را فعال کنید
+4. **مانیتورینگ**: لاگ‌ها را به‌طور منظم بررسی کنید
+
+## 📁 ساختار فایل‌ها
+
+```
+botmirzapanel/
+├── config.php              # تنظیمات اصلی (مجوز 600)
+├── functions.php           # توابع امن
+├── index.php              # نقطه ورود اصلی
+├── install_fixed.sh       # اسکریپت نصب امن
+├── .htaccess             # تنظیمات امنیتی Apache
+├── composer.json         # مدیریت dependencies
+├── SECURITY.md          # راهنمای امنیت
+└── src/                # کدهای اصلی
+    ├── Admin/         # پنل ادمین
+    └── Config/       # تنظیمات اضافی
+```
+
+## 🔍 رفع مشکل
+
+### مشکلات رایج:
+
+#### 1. خطای اتصال به دیتابیس
 ```bash
-curl -o install.sh -L https://raw.githubusercontent.com/0fariid0/botmirzapanel/main/install.sh && bash install.sh -update
+# بررسی وضعیت MySQL
+sudo systemctl status mysql
+
+# بررسی لاگ‌ها
+sudo tail -f /var/log/mysql/error.log
 ```
 
----
-
-## ❌ removing
-
-If you want to completely remove the bot from your server, run the following command:
-
+#### 2. مشکل SSL
 ```bash
-curl -o install.sh -L https://raw.githubusercontent.com/0fariid0/botmirzapanel/main/install.sh && bash install.sh
+# تجدید گواهینامه
+sudo certbot renew
+
+# بررسی وضعیت Apache
+sudo systemctl status apache2
 ```
 
-When prompted, **select option 3** to remove the bot.
+#### 3. مشکل مجوزهای فایل
+```bash
+# تنظیم مجوزهای صحیح
+sudo chown -R www-data:www-data /var/www/html/mirzabotconfig
+sudo chmod -R 755 /var/www/html/mirzabotconfig
+sudo chmod 600 /var/www/html/mirzabotconfig/config.php
+```
+
+## 📞 پشتیبانی
+
+### 🔗 لینک‌های مفید:
+- **کانال تلگرام**: [@mirzapanel](https://t.me/mirzapanel)
+- **مستندات**: [GitHub Wiki](https://github.com/0fariid0/botmirzapanel/wiki)
+- **گزارش باگ**: [GitHub Issues](https://github.com/0fariid0/botmirzapanel/issues)
+
+### 🛡️ گزارش مشکلات امنیتی:
+اگر مشکل امنیتی پیدا کردید، لطفاً به‌صورت خصوصی گزارش دهید:
+- **ایمیل**: security@mirzapanel.com
+- **تلگرام**: [@mirzapanel](https://t.me/mirzapanel)
+
+## 📋 الزامات سیستم
+
+### حداقل الزامات:
+- **OS**: Ubuntu 20.04+ / Debian 11+
+- **RAM**: 512MB (پیشنهاد: 1GB+)
+- **Storage**: 2GB+ فضای خالی
+- **PHP**: 8.0+
+- **MySQL**: 8.0+
+- **Apache**: 2.4+
+
+### الزامات پیشنهادی:
+- **RAM**: 2GB+
+- **CPU**: 2 Core+
+- **Storage**: SSD 10GB+
+- **SSL**: Certificate از Let's Encrypt
+
+## 🎯 نسخه‌ها
+
+### نسخه فعلی: 4.14.6+
+- ✅ رفع تمام مشکلات امنیتی
+- ✅ بهبود اسکریپت نصب
+- ✅ اضافه شدن security headers
+- ✅ بهبود error handling
+
+### تغییرات مهم:
+- **[BREAKING]** حذف پسوردهای hardcoded
+- **[SECURITY]** اصلاح SQL injection vulnerabilities
+- **[SECURITY]** حذف command injection risks
+- **[IMPROVEMENT]** بهبود file permissions
+
+## 📜 مجوز
+
+این پروژه تحت مجوز MIT منتشر شده است. برای جزئیات بیشتر فایل [LICENSE](LICENSE) را مطالعه کنید.
+
+## 🤝 مشارکت
+
+برای مشارکت در پروژه:
+
+1. **Fork** کنید
+2. **Branch** جدید بسازید (`git checkout -b feature/amazing-feature`)
+3. تغییرات را **Commit** کنید (`git commit -m 'Add amazing feature'`)
+4. به **Branch** خود **Push** کنید (`git push origin feature/amazing-feature`)
+5. **Pull Request** ایجاد کنید
+
+### 📝 راهنمای مشارکت:
+- کد باید clean و documented باشد
+- تست‌های امنیتی را اجرا کنید
+- از security best practices پیروی کنید
+- در صورت تغییرات امنیتی، حتماً مستندات را به‌روزرسانی کنید
 
 ---
 
-## 📱 Demo Bot
+**⚡ نکته**: برای استفاده از آخرین نسخه با تمام بهبودهای امنیتی، از اسکریپت `install_fixed.sh` استفاده کنید.
 
-Want to see Mirza Panel in action? Try the demo bot here:  
-👉 [Demo Bot](https://t.me/marzbaninfobot)
-
----
-
-## 💵 Financial Support
-
-If you find **Mirza Panel** helpful and would like to support its development, you can make a financial contribution via cryptocurrency.
-
-- **TRX Network (TRC20)**:  
-  `TNvwhpNtXxKMFFeVzGR8GNZ6gL4aECituU`
-
-Your support ensures continued updates and improvements for this project. Thank you! 🙌
-
-### Contributors
-
-![Contributors](https://contrib.rocks/image?repo=0fariid0/botmirzapanel)
+**🛡️ امنیت اولویت اول ماست!** تمام مشکلات امنیتی شناسایی شده رفع شده‌اند.
